@@ -3,6 +3,7 @@ package de.innogy.emobility.springtraining.beershop.service;
 import de.innogy.emobility.springtraining.beershop.controller.DeliveryDTO;
 import de.innogy.emobility.springtraining.beershop.controller.OrderDTO;
 import de.innogy.emobility.springtraining.beershop.exception.OutOfBeerException;
+import de.innogy.emobility.springtraining.beershop.exception.SorryAlcoholicOnlyDudeException;
 import de.innogy.emobility.springtraining.beershop.model.BeerItem;
 import de.innogy.emobility.springtraining.beershop.repository.BeerItemRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -70,6 +71,14 @@ public class SupplyService {
 
     public List<BeerItem> provideMenu() {
         return beerItemRepository.findAll();
+    }
+
+    public List<BeerItem> provideNonAlcoholicBeer() throws SorryAlcoholicOnlyDudeException {
+        List<BeerItem> beers = beerItemRepository.provideNonAlcoholicSortiment();
+        if (beers.isEmpty()) {
+            throw new SorryAlcoholicOnlyDudeException();
+        }
+        return beers;
     }
 
     public List<BeerItem> provideBeerDueForResupply() {
