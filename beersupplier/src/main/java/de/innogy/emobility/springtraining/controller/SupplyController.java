@@ -1,36 +1,42 @@
 package de.innogy.emobility.springtraining.controller;
 
-import de.innogy.emobility.springtraining.model.BeerItem;
-import de.innogy.emobility.springtraining.repository.BeerRepository;
+import de.innogy.emobility.springtraining.model.Beer;
+import de.innogy.emobility.springtraining.service.BeerService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Collection;
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
 @RequestMapping("/supply")
 public class SupplyController {
-    private BeerRepository beerRepository;
-    
+
+    private BeerService beerService;
+
     @Autowired
-    public SupplyController(BeerRepository beerRepository) {
-        this.beerRepository = beerRepository;
+    public SupplyController(BeerService beerService) {
+        this.beerService = beerService;
     }
-    
-    @PostMapping(value = "/addBeer", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public BeerItem placeOrder(@RequestBody BeerItem beerItem) {
-        return beerRepository.add(beerItem);
+
+    @PostMapping(value = "/add")
+    public void addBeer(@Valid @RequestBody Beer beer) {
+        beerService.addToStock(beer);
     }
-    
-    @GetMapping("/getAll")
-    public Collection<BeerItem> getAll() {
-        return beerRepository.findAll();
+
+    @PutMapping(value = "/update")
+    public void updateBeer(@Valid @RequestBody Beer beer) {
+        beerService.updateBeer(beer);
     }
-    
-    @GetMapping("/getByName")
-    public BeerItem getBeerByName(@RequestParam String name) {
-        return beerRepository.findByBeerName(name);
+    @DeleteMapping(value = "/remove/{name}")
+    public void deleteBeer(@PathVariable String name) {
+        // TODO: Add Exception Handling
+        beerService.removeBeer(name);
     }
+
+    @GetMapping("/all")
+    public List<Beer> getAll() {
+        return beerService.provideStock();
+    }
+
 }

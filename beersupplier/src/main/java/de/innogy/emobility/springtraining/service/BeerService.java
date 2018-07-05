@@ -1,79 +1,67 @@
 package de.innogy.emobility.springtraining.service;
 
-import de.innogy.emobility.springtraining.model.BeerItem;
-import de.innogy.emobility.springtraining.model.BeerOrder;
-import de.innogy.emobility.springtraining.repository.BeerRepository;
-import de.innogy.emobility.springtraining.repository.OrderRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import de.innogy.emobility.springtraining.model.Beer;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
+@Slf4j
 @Service
 public class BeerService {
-    private BeerRepository beerRepository;
-    private OrderRepository orderRepository;
-    private Map<String, List<BeerItem>> beerStock;
-    
-    @Autowired
-    public BeerService(BeerRepository beerRepository, OrderRepository orderRepository) {
-        this.beerRepository = beerRepository;
-        this.orderRepository = orderRepository;
-    }
-    
-    public BeerItem extractBeer(String client, String beerName) {
-        if (beerStock.containsKey(client)) {
-            List<BeerItem> beerItemList = beerStock.get(client);
-            final Optional<BeerItem> beerItem = beerItemList.stream().filter(item -> beerName.equals(item.getBeerName())).findFirst();
-            beerItemList.remove(beerItem.orElse(null));
-            return beerItem.orElse(null);
-        }
-        return null;
-    }
-    
+
+    private Map<String, Beer> availableBeer;
+
     @PostConstruct
     public void init() {
-        this.beerStock = new HashMap<>();
+        availableBeer = new HashMap<>();
+        availableBeer.put("Snake Venom",
+                          Beer.builder().alcoholVol(67.5).name("Snake Venom").bottleSizeInMl(500).build());
+        availableBeer.put("Sink the Bismarck!",
+                          Beer.builder().alcoholVol(41.0).name("Sink the Bismarck!").bottleSizeInMl(375).build());
+        availableBeer
+                .put("Innogy Pils", Beer.builder().alcoholVol(5.0).name("Innogy Pils").bottleSizeInMl(500).build());
+        availableBeer.put("Innogy Bock",
+                          Beer.builder().alcoholVol(8.5).name("Innogy Bock").bottleSizeInMl(5000).build());
+        availableBeer.put("Faxe", Beer.builder().alcoholVol(5.0).name("Faxe").bottleSizeInMl(1000).build());
+        availableBeer.put("Elephant Beer",
+                          Beer.builder().alcoholVol(11.0).name("Elephant Beer").bottleSizeInMl(500).build());
+        availableBeer.put("Innogy Radler",
+                          Beer.builder().alcoholVol(2.5).name("Innogy Radler").bottleSizeInMl(500).build());
+        availableBeer.put("Innogy Alkoholfrei",
+                          Beer.builder().alcoholVol(0.0).name("Innogy Alkoholfrei").bottleSizeInMl(500).build());
     }
-    
-    public String placeOrder(BeerOrder beerOrder) {
-        if (isBlank(beerOrder)) return null;
-        final BeerItem beerItem = beerRepository.findByBeerName(beerOrder.getBeerName());
-        if (beerItem == null) {
-            return "No such beer available!";
-        }
-        if (beerItem.reduceIfAvailable(beerOrder.getQuantity())) {
-            prepareBeerItemsFor(beerOrder);
-            BeerOrder beerOrderSaved = orderRepository.save(beerOrder);
-            return "Order #" + beerOrderSaved.getId() + " has been accepted.";
-        }
-        return "Not enough beer of this brand!";
+
+    public Beer provideBeerByName(String name) {
+        // TODO add Exception if beer is not available
+        return availableBeer.get(name);
     }
-    
-    private boolean isBlank(BeerOrder beerOrder) {
-        return beerOrder == null || beerOrder.isEmpty();
+
+    public List<Beer> provideStock() {
+        return new ArrayList<>(availableBeer.values());
     }
-    
-    private void prepareBeerItemsFor(BeerOrder beerOrder) {
-        String client = beerOrder.getClient();
-        if (!beerStock.containsKey(client)) {
-            beerStock.put(client, new ArrayList<>());
-        }
-        beerStock.get(client).add(new BeerItem(beerOrder.getBeerName(), beerOrder.getQuantity()));
+
+    public void addToStock(Beer beer) {
+        availableBeer.put(beer.getName(), beer);
+        log.info(beer.getName() + " was added to stock.");
     }
-    
-    public List<BeerOrder> getOrdersForClient(String client) {
-        if (client == null) return null;
-        return orderRepository.findBeerOrderByClient(client);
+
+    public void removeBeer(String beerName) {
+        // TODO: Add Exception Handling
+        availableBeer.remove(beerName);
+        log.info(beerName + " was removed from stock.");
     }
-    
-    public BeerOrder findBeerOrderById(Integer index) {
-        if (index == null) return null;
-        return orderRepository.findBeerOrderById(index);
+
+    public void updateBeer(Beer beer){
+        // TODO: Add Exception Handling
+        Beer oldBeer = provideBeerByName(beer.getName());
+        availableBeer.put(beer.getName(), beer);
+        log.info(beer.getName() + " was updated.");
+
     }
-    
-    public List<BeerItem> extractAllBeerItemsReadyFor(String client) {
-        return beerStock.remove(client);
-    }
+
 }
