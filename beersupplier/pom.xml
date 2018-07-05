@@ -9,7 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>beer-supplier</artifactId>
+    <artifactId>beerItem-supplier</artifactId>
 
     <dependencies>
         <dependency>
