@@ -17,8 +17,12 @@ import java.util.Map;
 @Service
 public class BeerService {
 
-    @Autowired
     private BeerRepository beerRepository;
+
+    @Autowired
+    public BeerService(BeerRepository beerRepository) {
+        this.beerRepository = beerRepository;
+    }
 
     @PostConstruct
     public void init() {
@@ -31,6 +35,7 @@ public class BeerService {
         beers.add(Beer.builder().alcoholVol(11.0).name("Elephant Beer").bottleSizeInMl(500).build());
         beers.add(Beer.builder().alcoholVol(2.5).name("Innogy Radler").bottleSizeInMl(500).build());
         beers.add(Beer.builder().alcoholVol(0.0).name("Innogy Alkoholfrei").bottleSizeInMl(500).build());
+        beerRepository.saveAll(beers);
     }
 
     public Beer provideBeerByName(String name) throws NotInStockException {
