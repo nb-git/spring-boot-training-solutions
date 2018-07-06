@@ -16,9 +16,6 @@ public class RabbitListenerConfig implements RabbitListenerConfigurer {
 
     private ObjectMapper objectMapper;
 
-    @Value("${order.queue}")
-    private String orderQueueName;
-
     @Value("${fanout.exchange}")
     private String fanoutExchangeName;
 
@@ -39,17 +36,7 @@ public class RabbitListenerConfig implements RabbitListenerConfigurer {
         this.objectMapper = objectMapper;
     }
 
-    /**
-     * Setup simple Queue.
-     *
-     * @return {@link Queue}
-     */
-    @Bean
-    public Queue orderQueue() {
-        return new Queue(orderQueueName);
-    }
 
-    // Fanout Settings
     /**
      * Setup FanoutExchange.
      *

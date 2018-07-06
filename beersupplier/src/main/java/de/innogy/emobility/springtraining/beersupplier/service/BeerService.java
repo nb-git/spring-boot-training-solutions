@@ -26,9 +26,10 @@ public class BeerService {
     private FanoutExchange fanoutExchange;
 
     @Autowired
-    public BeerService(BeerRepository beerRepository, RabbitTemplate rabbitTemplate) {
+    public BeerService(BeerRepository beerRepository, RabbitTemplate rabbitTemplate, FanoutExchange fanoutExchange) {
         this.beerRepository = beerRepository;
         this.rabbitTemplate = rabbitTemplate;
+        this.fanoutExchange = fanoutExchange;
     }
 
     @PostConstruct

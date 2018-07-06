@@ -8,6 +8,8 @@ import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Slf4j
 @Service
 public class RabbitService {
@@ -20,14 +22,19 @@ public class RabbitService {
     }
 
     @RabbitListener(queues = "#{directQueue.name}")
-    private void receiveDelivery(DeliveryDTO deliveryDTO){
-        BeerItem beerItem = deliveryDTO.getBeer();
-        beerItem.setStock(beerItem.getStock() + deliveryDTO.getQuantity());
-        beerItemRepository.save(beerItem);
+    private void receiveDelivery(DeliveryDTO deliveryDTO) {
+        if (deliveryDTO.getBeer() != null) {
+            Optional<BeerItem> result = beerItemRepository.findById(deliveryDTO.getBeer().getName());
+            if (result.isPresent()) {
+                BeerItem currentBeer = result.get();
+                currentBeer.setStock(currentBeer.getStock() + deliveryDTO.getQuantity());
+                beerItemRepository.save(currentBeer);
+            }
+        }
     }
 
-    @RabbitListener(queues = "#{directQueue.name}")
-    private void removeBeer(BeerItem beerItem){
+    @RabbitListener(queues = "#{fanoutQueue.name}")
+    private void removeBeer(BeerItem beerItem) {
         beerItemRepository.delete(beerItem);
         log.info(beerItem.getName() + " was removed from database");
     }

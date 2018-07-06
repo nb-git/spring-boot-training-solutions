@@ -31,22 +31,22 @@ public class SupplyService {
     @Value("${clientName}")
     private String clientName;
 
+    @Value("${order.queue}")
+    private String orderQueueName;
+
     private BeerItemRepository beerItemRepository;
 
     private final JdbcTemplate jdbcTemplate;
 
     private RabbitTemplate rabbitTemplate;
 
-    private DirectExchange directExchange;
-
     @Autowired
     public SupplyService(RestTemplate restTemplate, BeerItemRepository beerItemRepository, JdbcTemplate jdbcTemplate,
-                         RabbitTemplate rabbitTemplate, DirectExchange directExchange) {
+                         RabbitTemplate rabbitTemplate) {
         this.restTemplate = restTemplate;
         this.beerItemRepository = beerItemRepository;
         this.jdbcTemplate = jdbcTemplate;
         this.rabbitTemplate = rabbitTemplate;
-        this.directExchange = directExchange;
     }
 
     @PostConstruct
@@ -60,8 +60,7 @@ public class SupplyService {
 
     public void sendOrderToSupplier(BeerItem beerItem) {
         storeOutgoingOrder(beerItem.getName(), 1000);
-        rabbitTemplate.convertAndSend(directExchange.getName(), "#{directQueue.name}",
-                                      new OrderDTO(clientName, 1000, beerItem.getName()));
+        rabbitTemplate.convertAndSend(orderQueueName, new OrderDTO(clientName, 1000, beerItem.getName()));
     }
 
     public DeliveryDTO orderBeer(OrderDTO orderDTO) throws OutOfBeerException {

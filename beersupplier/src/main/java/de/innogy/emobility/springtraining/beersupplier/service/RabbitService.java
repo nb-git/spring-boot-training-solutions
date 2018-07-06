@@ -30,13 +30,14 @@ public class RabbitService {
     @Value("${direct.exchange.routingkey}")
     private String routingKey;
 
-    @RabbitListener(queues = "#{orderQueue.name}")
+    @RabbitListener(queues = "training.order")
     public void receiveOrder(OrderDTO order) {
         log.info(LocalDateTime.now() + " received order: \"" + order.toString() + "\"");
         try {
             Beer beer = beerService.provideBeerByName(order.getBeerName());
             rabbitTemplate
                     .convertAndSend(directExchange.getName(), routingKey, new DeliveryDTO(order.getQuantity(), beer));
+            log.info(order.getQuantity() + " of beer: " + order.getBeerName() + " was delivered");
         } catch (NotInStockException ne) {
             log.error("Beer " + order.getBeerName() + " colud not be delivered as it is not listed", ne);
             rabbitTemplate.convertAndSend(directExchange.getName(), routingKey, new DeliveryDTO(0, null));

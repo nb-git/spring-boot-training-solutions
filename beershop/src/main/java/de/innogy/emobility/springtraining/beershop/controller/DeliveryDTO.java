@@ -5,12 +5,14 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.persistence.criteria.CriteriaBuilder;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class DeliveryDTO {
 
-    private int quantity;
+    private Integer quantity;
 
     private BeerItem beer;
 
