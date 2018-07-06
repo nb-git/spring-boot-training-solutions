@@ -4,6 +4,8 @@ import de.innogy.emobility.springtraining.beersupplier.exception.NotInStockExcep
 import de.innogy.emobility.springtraining.beersupplier.model.Beer;
 import de.innogy.emobility.springtraining.beersupplier.repository.BeerRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.core.FanoutExchange;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,9 +21,14 @@ public class BeerService {
 
     private BeerRepository beerRepository;
 
+    private RabbitTemplate rabbitTemplate;
+
+    private FanoutExchange fanoutExchange;
+
     @Autowired
-    public BeerService(BeerRepository beerRepository) {
+    public BeerService(BeerRepository beerRepository, RabbitTemplate rabbitTemplate) {
         this.beerRepository = beerRepository;
+        this.rabbitTemplate = rabbitTemplate;
     }
 
     @PostConstruct
@@ -64,6 +71,7 @@ public class BeerService {
         } else {
             beerRepository.deleteById(beerName);
         }
+        rabbitTemplate.convertAndSend(fanoutExchange.getName(), "", removedBeer);
         log.info(beerName + " was removed from stock.");
     }
 

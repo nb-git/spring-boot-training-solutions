@@ -6,6 +6,8 @@ import de.innogy.emobility.springtraining.beershop.exception.OutOfBeerException;
 import de.innogy.emobility.springtraining.beershop.exception.SorryAlcoholicOnlyDudeException;
 import de.innogy.emobility.springtraining.beershop.model.BeerItem;
 import de.innogy.emobility.springtraining.beershop.repository.BeerItemRepository;
+import org.springframework.amqp.core.DirectExchange;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -33,11 +35,18 @@ public class SupplyService {
 
     private final JdbcTemplate jdbcTemplate;
 
+    private RabbitTemplate rabbitTemplate;
+
+    private DirectExchange directExchange;
+
     @Autowired
-    public SupplyService(RestTemplate restTemplate, BeerItemRepository beerItemRepository, JdbcTemplate jdbcTemplate) {
+    public SupplyService(RestTemplate restTemplate, BeerItemRepository beerItemRepository, JdbcTemplate jdbcTemplate,
+                         RabbitTemplate rabbitTemplate, DirectExchange directExchange) {
         this.restTemplate = restTemplate;
         this.beerItemRepository = beerItemRepository;
         this.jdbcTemplate = jdbcTemplate;
+        this.rabbitTemplate = rabbitTemplate;
+        this.directExchange = directExchange;
     }
 
     @PostConstruct
@@ -49,13 +58,10 @@ public class SupplyService {
         beerItemRepository.saveAll(Arrays.asList(beerItems));
     }
 
-    public void fillSupplyWith(BeerItem beerItem) {
+    public void sendOrderToSupplier(BeerItem beerItem) {
         storeOutgoingOrder(beerItem.getName(), 1000);
-        DeliveryDTO order = restTemplate
-                .postForObject(beerProducerOrderUrl, new OrderDTO(clientName, 1000, beerItem.getName()),
-                               DeliveryDTO.class);
-        beerItem.setStock(beerItem.getStock() + order.getQuantity());
-        beerItemRepository.save(beerItem);
+        rabbitTemplate.convertAndSend(directExchange.getName(), "#{directQueue.name}",
+                                      new OrderDTO(clientName, 1000, beerItem.getName()));
     }
 
     public DeliveryDTO orderBeer(OrderDTO orderDTO) throws OutOfBeerException {
@@ -65,7 +71,8 @@ public class SupplyService {
             return new DeliveryDTO(orderDTO.getQuantity(), beerItem);
         } else {
             throw new OutOfBeerException(
-                    "Not enough quantity of Beer " +orderDTO.getBeerName()+ " only " + (beerItem!=null ? beerItem.getStock() : 0) + " left", beerItem);
+                    "Not enough quantity of Beer " + orderDTO.getBeerName() + " only " + (beerItem != null ? beerItem
+                            .getStock() : 0) + " left", beerItem);
         }
     }
 
@@ -86,6 +93,6 @@ public class SupplyService {
     }
 
     private void storeOutgoingOrder(String beerName, int quantity) {
-        jdbcTemplate.update("INSERT INTO BEER_STOCK_ORDER (BEER_NAME, QUANTITY) VALUES (?,?)",beerName,quantity);
+        jdbcTemplate.update("INSERT INTO BEER_STOCK_ORDER (BEER_NAME, QUANTITY) VALUES (?,?)", beerName, quantity);
     }
 }
