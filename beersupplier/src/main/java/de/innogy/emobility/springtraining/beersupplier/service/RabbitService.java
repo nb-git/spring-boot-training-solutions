@@ -41,15 +41,15 @@ public class RabbitService {
         log.info("String test was send to " + orderQueueName);
     }
 
-    public void sendRemovedBeerToFanout(Beer removedBeer) {
-        rabbitTemplate.convertAndSend(fanoutExchange.getName(), "", removedBeer);
-        log.info(removedBeer.getName() + " was removed from stock.");
-    }
-
     public void sendDeliveryToDirectExchange(DeliveryDTO delivery){
         rabbitTemplate
                 .convertAndSend(directExchange.getName(), routingKey, delivery);
         log.info(delivery.getQuantity() + " of beer: " + delivery.getBeer().getName() + " was delivered");
+    }
+
+    public void sendRemovedBeerToFanout(Beer removedBeer) {
+        rabbitTemplate.convertAndSend(fanoutExchange.getName(), "", removedBeer);
+        log.info(removedBeer.getName() + " was removed from stock.");
     }
 
 }

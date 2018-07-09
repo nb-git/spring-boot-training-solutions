@@ -35,7 +35,6 @@ public class SupplyService {
 
     private final JdbcTemplate jdbcTemplate;
 
-
     @Autowired
     public SupplyService(RestTemplate restTemplate, BeerItemRepository beerItemRepository, JdbcTemplate jdbcTemplate) {
         this.restTemplate = restTemplate;
@@ -54,9 +53,8 @@ public class SupplyService {
 
     public void fillSupplyWith(BeerItem beerItem) {
         storeOutgoingOrder(beerItem.getName(), 1000);
-        DeliveryDTO order = restTemplate
-                .postForObject(beerProducerOrderUrl, new OrderDTO(clientName, 1000, beerItem.getName()),
-                               DeliveryDTO.class);
+        restTemplate.postForObject(beerProducerOrderUrl, new OrderDTO(clientName, 1000, beerItem.getName()),
+                                   DeliveryDTO.class);
     }
 
     public DeliveryDTO orderBeer(OrderDTO orderDTO) throws OutOfBeerException {
@@ -67,7 +65,8 @@ public class SupplyService {
             return new DeliveryDTO(orderDTO.getQuantity(), beerItem);
         } else {
             throw new OutOfBeerException(
-                    "Not enough quantity of Beer " +orderDTO.getBeerName()+ " only " + (beerItem!=null ? beerItem.getStock() : 0) + " left", beerItem);
+                    "Not enough quantity of Beer " + orderDTO.getBeerName() + " only " + (beerItem != null ? beerItem
+                            .getStock() : 0) + " left", beerItem);
         }
     }
 
