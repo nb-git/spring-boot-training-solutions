@@ -21,15 +21,12 @@ public class BeerService {
 
     private BeerRepository beerRepository;
 
-    private RabbitTemplate rabbitTemplate;
-
-    private FanoutExchange fanoutExchange;
+    private RabbitService rabbitService;
 
     @Autowired
-    public BeerService(BeerRepository beerRepository, RabbitTemplate rabbitTemplate, FanoutExchange fanoutExchange) {
+    public BeerService(BeerRepository beerRepository, RabbitService rabbitService) {
         this.beerRepository = beerRepository;
-        this.rabbitTemplate = rabbitTemplate;
-        this.fanoutExchange = fanoutExchange;
+        this.rabbitService = rabbitService;
     }
 
     @PostConstruct
@@ -48,7 +45,7 @@ public class BeerService {
 
     public Beer provideBeerByName(String name) throws NotInStockException {
         Beer providedBeer = beerRepository.findById(name).orElse(null);
-        if(providedBeer == null){
+        if (providedBeer == null) {
             log.info(name + "  is not listed.");
             throw new NotInStockException(name + " is not listed.");
         }
@@ -66,13 +63,13 @@ public class BeerService {
 
     public void removeBeer(String beerName) throws NotInStockException {
         Beer removedBeer = beerRepository.findById(beerName).orElse(null);
-        if(removedBeer == null){
+        if (removedBeer == null) {
             log.info(beerName + " cannot be removed as it is not listed.");
             throw new NotInStockException(beerName + " cannot be removed as it is not listed.");
         } else {
             beerRepository.deleteById(beerName);
         }
-        rabbitTemplate.convertAndSend(fanoutExchange.getName(), "", removedBeer);
+        rabbitService.sendRemovedBeerToFanout(removedBeer);
         log.info(beerName + " was removed from stock.");
     }
 

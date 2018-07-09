@@ -22,7 +22,7 @@ public class SupplierAdvice {
     @ExceptionHandler(OutOfBeerException.class)
     @ResponseStatus(code = HttpStatus.GONE, reason = "Bier ist alle")
     public void handleOutOfBeerException(OutOfBeerException e) {
-        supplyService.sendOrderToSupplier(e.getBeerItem());
+        supplyService.fillSupplyWith(e.getBeerItem());
     }
 
     @ExceptionHandler(SorryAlcoholicOnlyDudeException.class)
