@@ -6,8 +6,7 @@ import de.innogy.emobility.springtraining.beershop.exception.OutOfBeerException;
 import de.innogy.emobility.springtraining.beershop.exception.SorryAlcoholicOnlyDudeException;
 import de.innogy.emobility.springtraining.beershop.model.BeerItem;
 import de.innogy.emobility.springtraining.beershop.repository.BeerItemRepository;
-import org.springframework.amqp.core.DirectExchange;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -15,8 +14,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.PostConstruct;
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
 
+@Slf4j
 @Service
 public class SupplyService {
 
@@ -53,8 +54,12 @@ public class SupplyService {
 
     public void fillSupplyWith(BeerItem beerItem) {
         storeOutgoingOrder(beerItem.getName(), 1000);
-        restTemplate.postForObject(beerProducerOrderUrl, new OrderDTO(clientName, 1000, beerItem.getName()),
-                                   DeliveryDTO.class);
+        try {
+            restTemplate.postForObject("//beersupplier/order", new OrderDTO(clientName, 1000, beerItem.getName()),
+                                       DeliveryDTO.class);
+        } catch (Exception e){
+            log.error("Exception", e);
+        }
     }
 
     public DeliveryDTO orderBeer(OrderDTO orderDTO) throws OutOfBeerException {
