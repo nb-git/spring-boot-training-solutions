@@ -24,10 +24,6 @@ public class BeerItem {
     private String name;
 
     @NotNull
-    @Column(name="BOTTLE_SIZE_ML")
-    private Integer bottleSizeInMl;
-
-    @NotNull
     @Column(name="ALCOHOL_VOL")
     private Double alcoholVol;
 
