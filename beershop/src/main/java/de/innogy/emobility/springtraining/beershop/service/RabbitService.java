@@ -21,26 +21,23 @@ public class RabbitService {
         this.beerItemRepository = beerItemRepository;
     }
 
-    @RabbitListener(queues = "training.order")
-    private void reveiveString(String in){
-        log.info("Received String " + in);
-    }
-
-    @RabbitListener(queues = "#{directQueue.name}")
-    private void receiveDelivery(DeliveryDTO deliveryDTO) {
-        if (deliveryDTO.getBeer() != null) {
-            Optional<BeerItem> result = beerItemRepository.findById(deliveryDTO.getBeer().getName());
+    @RabbitListener(queues = "queue.order")
+    private void receiveDelivery(DeliveryDTO deliveredBeer) {
+        if (deliveredBeer != null) {
+            log.info("Received order: Beer: {}", deliveredBeer.getBeer().getName());
+            Optional<BeerItem> result = beerItemRepository.findById(deliveredBeer.getBeer().getName());
             if (result.isPresent()) {
                 BeerItem currentBeer = result.get();
-                currentBeer.setStock(currentBeer.getStock() + deliveryDTO.getQuantity());
+                currentBeer.setStock(currentBeer.getStock() + 10);
                 beerItemRepository.save(currentBeer);
             }
         }
     }
 
-    @RabbitListener(queues = "#{fanoutQueue.name}")
+    @RabbitListener(queues = "#{fanoutRemoveBeerQueue.name}")
     private void removeBeer(BeerItem beerItem) {
         beerItemRepository.delete(beerItem);
         log.info(beerItem.getName() + " was removed from database");
     }
+
 }

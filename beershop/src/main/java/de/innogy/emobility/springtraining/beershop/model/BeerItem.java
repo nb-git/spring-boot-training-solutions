@@ -28,7 +28,6 @@ public class BeerItem {
     private Double alcoholVol;
 
     @NotNull
-    @JsonIgnore
     @Column(name="STOCK")
     private Integer stock;
 

@@ -1,7 +1,6 @@
 package de.innogy.emobility.springtraining.beersupplier.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.amqp.core.DirectExchange;
 import org.springframework.amqp.core.FanoutExchange;
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
@@ -22,8 +21,8 @@ public class RabbitConfig {
 
     private ObjectMapper objectMapper;
 
-    @Value("${order.queue}")
-    private String queueName;
+    @Value("${queue.order}")
+    private String orderQueueName;
 
     @Autowired
     public RabbitConfig(ObjectMapper objectMapper) {
@@ -52,7 +51,7 @@ public class RabbitConfig {
      */
     @Bean
     public Queue orderQueue() {
-        return new Queue(queueName);
+        return new Queue(orderQueueName);
     }
 
     /**
@@ -63,20 +62,8 @@ public class RabbitConfig {
      * @return {@link FanoutExchange}
      */
     @Bean
-    public FanoutExchange fanoutExchange(@Value("${fanout.exchange}") String fanoutExchange) {
+    public FanoutExchange fanoutExchange(@Value("${fanout.removedBeer}") String fanoutExchange) {
         return new FanoutExchange(fanoutExchange);
-    }
-
-    /**
-     * DirectExchange as Bean to be able to autowire it
-     *
-     * @param directExchangeName name of the exchange from properties
-     *
-     * @return {@link DirectExchange}
-     */
-    @Bean
-    public DirectExchange directExchange(@Value("${direct.exchange}") String directExchangeName) {
-        return new DirectExchange(directExchangeName);
     }
 
     /**
