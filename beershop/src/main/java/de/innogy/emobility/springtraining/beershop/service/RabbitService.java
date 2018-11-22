@@ -28,7 +28,7 @@ public class RabbitService {
             Optional<BeerItem> result = beerItemRepository.findById(deliveredBeer.getBeer().getName());
             if (result.isPresent()) {
                 BeerItem currentBeer = result.get();
-                currentBeer.setStock(currentBeer.getStock() + 10);
+                currentBeer.setStock(currentBeer.getStock() + deliveredBeer.getQuantity());
                 beerItemRepository.save(currentBeer);
             }
         }
