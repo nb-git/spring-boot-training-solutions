@@ -5,6 +5,7 @@ import de.innogy.emobility.springtraining.beershop.controller.OrderDto;
 import de.innogy.emobility.springtraining.beershop.exception.OutOfBeerException;
 import de.innogy.emobility.springtraining.beershop.model.BeerItem;
 import de.innogy.emobility.springtraining.beershop.repository.BeerItemRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -13,6 +14,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 
+@Slf4j
 @Service
 public class SupplyService {
 
@@ -37,7 +39,14 @@ public class SupplyService {
 
     public void fillSupplyWith(BeerItem beerItem) {
         storeOutgoingOrder(beerItem.getName(), 1000);
-        restTemplate.postForObject(beerProducerOrderUrl, new OrderDto(clientName, 1000, beerItem.getName()), DeliveryDto.class);
+        DeliveryDto delivery = restTemplate.postForObject(beerProducerOrderUrl, new OrderDto(clientName, 1000, beerItem.getName()), DeliveryDto.class);
+        if (delivery != null && delivery.getBeer() != null && delivery.getQuantity() > 0) {
+            log.info("Received delivery of: {} quantity: {} ", delivery.getBeer().getName(), delivery.getQuantity());
+            beerItem.setStock(beerItem.getStock() + delivery.getQuantity());
+            beerItemRepository.save(beerItem);
+        } else {
+            log.warn("No delivery received, beer: {} still out of stock", beerItem.getName());
+        }
     }
 
     public DeliveryDto orderBeer(OrderDto orderDTO) throws OutOfBeerException {

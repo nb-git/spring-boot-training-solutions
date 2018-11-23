@@ -17,12 +17,9 @@ public class BeerService {
 
     private BeerRepository beerRepository;
 
-    private RabbitService rabbitService;
-
     @Autowired
-    public BeerService(BeerRepository beerRepository, RabbitService rabbitService) {
+    public BeerService(BeerRepository beerRepository) {
         this.beerRepository = beerRepository;
-        this.rabbitService = rabbitService;
     }
 
     @PostConstruct
@@ -65,7 +62,6 @@ public class BeerService {
         } else {
             beerRepository.deleteById(beerName);
         }
-        rabbitService.sendRemovedBeerToFanout(removedBeer.getName());
         log.info(beerName + " was removed from stock.");
     }
 
