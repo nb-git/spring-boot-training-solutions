@@ -12,11 +12,14 @@
     <artifactId>beersupplier</artifactId>
 
     <dependencies>
-        <!-- TODO: Lesson 4.1 add  spring-cloud-services-starter-service-registry -->
-        <!-- TODO: Lesson 4.2 add spring-cloud-services-starter-circuit-breaker -->
+        <!-- TODO: Lesson 4.3 add  spring-cloud-services-starter-service-registry -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.pivotal.spring.cloud</groupId>
+            <artifactId>spring-cloud-services-starter-service-registry</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>

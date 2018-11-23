@@ -11,7 +11,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -19,10 +18,8 @@ public class SupplyService {
 
     private RestTemplate restTemplate;
 
-    @Value("${beer-producer.order.url}")
+    @Value("${beersupplier.order.url}")
     private String beerProducerOrderUrl;
-
-    private String beerProducerBeersUrl;
 
     @Value("${clientName}")
     private String clientName;
@@ -32,21 +29,10 @@ public class SupplyService {
     private final JdbcTemplate jdbcTemplate;
 
     @Autowired
-    public SupplyService(RestTemplate restTemplate, BeerItemRepository beerItemRepository, JdbcTemplate jdbcTemplate,
-                         @Value("${beer-producer.supply.all.url}") String beerProducerBeersUrl) {
+    public SupplyService(RestTemplate restTemplate, BeerItemRepository beerItemRepository, JdbcTemplate jdbcTemplate) {
         this.restTemplate = restTemplate;
         this.beerItemRepository = beerItemRepository;
         this.jdbcTemplate = jdbcTemplate;
-        this.beerProducerBeersUrl = beerProducerBeersUrl;
-        init();
-    }
-
-    private void init() {
-        BeerItem[] beerItems = restTemplate.getForObject(beerProducerBeersUrl, BeerItem[].class);
-        for (BeerItem beerItem : beerItems) {
-            beerItem.setStock(100);
-        }
-        beerItemRepository.saveAll(Arrays.asList(beerItems));
     }
 
     public void fillSupplyWith(BeerItem beerItem) {

@@ -1,0 +1,10 @@
+applications:
+- name: beersupplier
+  path: target/beersupplier-0.0.1-SNAPSHOT.jar
+  buildpack: java_buildpack_offline
+  timeout: 180
+  instances: 1
+  services:
+    - training-db
+    - training-rabbit
+    - training-registry
