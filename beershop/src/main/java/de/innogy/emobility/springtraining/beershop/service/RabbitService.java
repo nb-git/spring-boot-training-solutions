@@ -1,6 +1,6 @@
 package de.innogy.emobility.springtraining.beershop.service;
 
-import de.innogy.emobility.springtraining.beershop.controller.DeliveryDTO;
+import de.innogy.emobility.springtraining.beershop.controller.DeliveryDto;
 import de.innogy.emobility.springtraining.beershop.model.BeerItem;
 import de.innogy.emobility.springtraining.beershop.repository.BeerItemRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -22,7 +22,7 @@ public class RabbitService {
     }
 
     @RabbitListener(queues = "queue.order")
-    private void receiveDelivery(DeliveryDTO deliveredBeer) {
+    private void receiveDelivery(DeliveryDto deliveredBeer) {
         if (deliveredBeer != null) {
             log.info("Received order: Beer: {}", deliveredBeer.getBeer().getName());
             Optional<BeerItem> result = beerItemRepository.findById(deliveredBeer.getBeer().getName());

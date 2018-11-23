@@ -1,6 +1,6 @@
 package de.innogy.emobility.springtraining.beersupplier.service;
 
-import de.innogy.emobility.springtraining.beersupplier.controller.DeliveryDTO;
+import de.innogy.emobility.springtraining.beersupplier.controller.DeliveryDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.FanoutExchange;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -22,7 +22,7 @@ public class RabbitService {
     @Value("${queue.order}")
     private String deliveryQueue;
 
-    public void sendDelivery(DeliveryDTO deliveryDTO){
+    public void sendDelivery(DeliveryDto deliveryDTO){
         rabbitTemplate.convertAndSend(deliveryQueue, deliveryDTO);
         log.info(deliveryDTO + " send to " + deliveryQueue);
     }

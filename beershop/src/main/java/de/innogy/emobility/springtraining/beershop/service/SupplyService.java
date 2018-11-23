@@ -1,7 +1,7 @@
 package de.innogy.emobility.springtraining.beershop.service;
 
-import de.innogy.emobility.springtraining.beershop.controller.DeliveryDTO;
-import de.innogy.emobility.springtraining.beershop.controller.OrderDTO;
+import de.innogy.emobility.springtraining.beershop.controller.DeliveryDto;
+import de.innogy.emobility.springtraining.beershop.controller.OrderDto;
 import de.innogy.emobility.springtraining.beershop.exception.OutOfBeerException;
 import de.innogy.emobility.springtraining.beershop.model.BeerItem;
 import de.innogy.emobility.springtraining.beershop.repository.BeerItemRepository;
@@ -51,15 +51,15 @@ public class SupplyService {
 
     public void fillSupplyWith(BeerItem beerItem) {
         storeOutgoingOrder(beerItem.getName(), 1000);
-        restTemplate.postForObject(beerProducerOrderUrl, new OrderDTO(clientName, 1000, beerItem.getName()), DeliveryDTO.class);
+        restTemplate.postForObject(beerProducerOrderUrl, new OrderDto(clientName, 1000, beerItem.getName()), DeliveryDto.class);
     }
 
-    public DeliveryDTO orderBeer(OrderDTO orderDTO) throws OutOfBeerException {
+    public DeliveryDto orderBeer(OrderDto orderDTO) throws OutOfBeerException {
         BeerItem beerItem = beerItemRepository.findById(orderDTO.getBeerName()).orElse(null);
         if (beerItem != null && beerItem.getStock() >= orderDTO.getQuantity()) {
             beerItem.setStock(beerItem.getStock() - orderDTO.getQuantity());
             beerItemRepository.save(beerItem);
-            return new DeliveryDTO(orderDTO.getQuantity(), beerItem);
+            return new DeliveryDto(orderDTO.getQuantity(), beerItem);
         } else {
             throw new OutOfBeerException(
                 "Not enough quantity of Beer " + orderDTO.getBeerName() + " only " + (beerItem != null ? beerItem.getStock() : 0) + " left", beerItem);
