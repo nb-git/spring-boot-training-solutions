@@ -6,8 +6,8 @@ import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfi
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 
 //Lesson 4.3 Enable Discovery Client
-@SpringBootApplication(exclude = { SecurityAutoConfiguration.class })
 @EnableDiscoveryClient
+@SpringBootApplication(exclude = { SecurityAutoConfiguration.class })
 public class BeerSupplierApplication {
 
 	public static void main(String[] args) {

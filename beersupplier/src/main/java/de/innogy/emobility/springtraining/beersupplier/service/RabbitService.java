@@ -19,7 +19,7 @@ public class RabbitService {
     private Queue orderQueue;
 
     @Autowired
-    public RabbitService(RabbitTemplate rabbitTemplate, FanoutExchange fanoutRemovedBeer, Queue orderQueue) {
+    public RabbitService(RabbitTemplate rabbitTemplate, Queue orderQueue, FanoutExchange fanoutRemovedBeer) {
         this.rabbitTemplate = rabbitTemplate;
         this.fanoutRemovedBeer = fanoutRemovedBeer;
         this.orderQueue = orderQueue;
