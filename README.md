@@ -1,1 +1,1 @@
-Project for Spring Training
+Project for Spring Training Lab Solutions
