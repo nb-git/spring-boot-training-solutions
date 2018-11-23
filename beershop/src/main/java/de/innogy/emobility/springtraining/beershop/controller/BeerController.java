@@ -21,9 +21,8 @@ import java.util.List;
 public class BeerController {
 
     private SupplyService supplyService;
-
     /*
-     * TODO 4.3: On a Get-Request, request all available Beers from supplier,
+     * Lesson 4.4: On a Get-Request, request all available Beers from supplier,
      * if the supplier is not reachable provide a list of surrogate beers.
      */
     @Value("${beersupplier.supply.all.url}")
@@ -47,6 +46,7 @@ public class BeerController {
         return supplyService.provideMenu();
     }
 
+    //Lesson 4.4 Restmethod
     @HystrixCommand(fallbackMethod = "provideFallback")
     @GetMapping("/fallback")
     public List<BeerItem> getFallbackMenu() {
@@ -54,6 +54,7 @@ public class BeerController {
         return beerItems != null ? Arrays.asList(beerItems) : null;
     }
 
+    //Lesson 4.4 Fallback-method
     private List<BeerItem> provideFallback(){
         BeerItem beer1 = new BeerItem("Wasser", 0.0, 1);
         BeerItem beer2 = new BeerItem("Plörrbräu", 8.4, 1);

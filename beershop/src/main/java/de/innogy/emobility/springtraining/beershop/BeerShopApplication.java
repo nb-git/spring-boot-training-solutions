@@ -6,9 +6,9 @@ import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfi
 import org.springframework.cloud.client.circuitbreaker.EnableCircuitBreaker;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 
-//TODO: Lesson 4.3 Enable Discovery Client
-//TODO: Lesson 4.4 Enable Circuit Breaker
+//Lesson 4.3 Enable Discovery Client
 @EnableDiscoveryClient
+//Lesson 4.4 Enable Circuit Breaker
 @EnableCircuitBreaker
 @SpringBootApplication(exclude = { SecurityAutoConfiguration.class })
 public class BeerShopApplication {
