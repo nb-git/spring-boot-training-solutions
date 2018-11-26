@@ -5,14 +5,17 @@ import de.innogy.emobility.springtraining.beershop.controller.OrderDto;
 import de.innogy.emobility.springtraining.beershop.exception.OutOfBeerException;
 import de.innogy.emobility.springtraining.beershop.model.BeerItem;
 import de.innogy.emobility.springtraining.beershop.repository.BeerItemRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 
+@Slf4j
 @Service
 public class SupplyService {
 
@@ -37,7 +40,11 @@ public class SupplyService {
 
     public void fillSupplyWith(BeerItem beerItem) {
         storeOutgoingOrder(beerItem.getName(), 1000);
-        restTemplate.postForObject(beerProducerOrderUrl, new OrderDto(clientName, 1000, beerItem.getName()), DeliveryDto.class);
+        try {
+            restTemplate.postForObject(beerProducerOrderUrl, new OrderDto(clientName, 1000, beerItem.getName()), DeliveryDto.class);
+        } catch (HttpClientErrorException e) {
+            log.error("Could not order beer : {}, reponse code {}, error message: {}", beerItem.getName(), e.getRawStatusCode(), e.getMessage());
+        }
     }
 
     public DeliveryDto orderBeer(OrderDto orderDTO) throws OutOfBeerException {
@@ -47,8 +54,9 @@ public class SupplyService {
             beerItemRepository.save(beerItem);
             return new DeliveryDto(orderDTO.getQuantity(), beerItem);
         } else {
+            BeerItem beerToOrder = beerItem != null ? beerItem : BeerItem.builder().name(orderDTO.getBeerName()).build();
             throw new OutOfBeerException(
-                "Not enough quantity of Beer " + orderDTO.getBeerName() + " only " + (beerItem != null ? beerItem.getStock() : 0) + " left", beerItem);
+                "Not enough quantity of Beer " + orderDTO.getBeerName() + " only " + (beerItem != null ? beerItem.getStock() : 0) + " left", beerToOrder);
         }
     }
 
