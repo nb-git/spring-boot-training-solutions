@@ -1,6 +1,7 @@
 package de.innogy.emobility.springtraining.beershop.model;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -15,6 +16,7 @@ import javax.validation.constraints.NotNull;
 @NoArgsConstructor
 @Entity
 @Table(name="BEER_ITEM")
+@Builder
 public class BeerItem {
 
     @NotNull

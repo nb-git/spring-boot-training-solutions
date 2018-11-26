@@ -24,7 +24,7 @@ public class RabbitService {
     @RabbitListener(queues = "queue.order")
     private void receiveDelivery(DeliveryDto deliveredBeer) {
         if (deliveredBeer != null) {
-            log.info("Received order: Beer: {}", deliveredBeer.getBeer().getName());
+            log.info("Received order: Beer: {} quantity: {}", deliveredBeer.getBeer().getName(), deliveredBeer.getQuantity());
             Optional<BeerItem> result = beerItemRepository.findById(deliveredBeer.getBeer().getName());
             if (result.isPresent()) {
                 BeerItem currentBeer = result.get();
