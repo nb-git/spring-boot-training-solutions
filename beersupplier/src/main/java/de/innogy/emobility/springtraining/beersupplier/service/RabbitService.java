@@ -1,6 +1,7 @@
 package de.innogy.emobility.springtraining.beersupplier.service;
 
 import de.innogy.emobility.springtraining.beersupplier.controller.DeliveryDto;
+import de.innogy.emobility.springtraining.beersupplier.model.Beer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.FanoutExchange;
 import org.springframework.amqp.core.Queue;
@@ -30,7 +31,7 @@ public class RabbitService {
         log.info(deliveryDTO + " send to " + orderQueue.getName());
     }
 
-    void sendRemovedBeerToFanout(String removedBeer) {
+    void sendRemovedBeerToFanout(Beer removedBeer) {
         rabbitTemplate.convertAndSend(fanoutRemovedBeer.getName(), "", removedBeer);
         log.info(removedBeer + " was removed from stock.");
     }
